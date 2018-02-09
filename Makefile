@@ -149,11 +149,11 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets compilemessages
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-i18n-update-docs:
+i18n-messages-docs:
 	make -C docs/ gettext
 	cd docs && sphinx-intl update -p _build/locale -l en
 
-makemessages: assets docs-update-i18n-msgs
+makemessages: assets i18n-messages-docs
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --ignore 'docs/conf.py'
 
 compilemessages:
