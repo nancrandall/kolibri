@@ -77,12 +77,38 @@ In this way, messages are namespaced, and then available off the ``$tr`` method 
 These messages will then be discovered for any registered plugins and loaded into the page if that language is set as the Django language. All language setting for the Frontend is based off the current Django language for the request.
 
 
-User Docs Translation
----------------------
+.. _crowdin:
 
-The documentation located in ``docs/`` is translated through the CrowdIn project
-`<kolibri-docs> https://crowdin.com/project/kolibri-docs/`__.
+Translation CrowdIn workflow
+----------------------------
 
+Translations are maintained in release branches on CrowdIn in the following projects:
+  
+* `CrowdIn: kolibri <http://crowdin.com/project/kolibri>`__
+* `CrowdIn: kolibri-docs <http://crowdin.com/project/kolibri-docs>`__
+
+In order to pull the latest messages, invoke the following commands, fetching your API key using `these instructions <https://support.crowdin.com/api/api-integration-setup/>`__. Notice that you have to specify from which branch you are pulling the translations.
+
+.. code-block:: bash
+
+    $ CROWDIN_API_KEY="your-secret-key" make translation-pull crowdin-branch=release-v0.7.x
+
+.. warning:: By default Crowdin will download all translations, not just approved ones, and will often download untranslated strings also. Do not just add all the files that are downloaded, as this will lead to untranslated and poor quality strings being included.
+
+
+Translation workflow prerequisites
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Translation relies on having `crowdin-cli <https://support.crowdin.com/cli-tool/>`__ available as a jar, and you need Java to run this. Make sure you have completed the following steps:
+
+.. code-block:: bash
+  
+    # Install crowdin-cli
+    $ make translation-install-crowdin-cli
+    # Install docs requirements
+    $ pip install -r requirements/docs.txt
+
+.. note:: The Make shortcuts for working with translation are not set up for Windows. The configured paths etc. are different on a Windows system, so you have to both rewrite the `CrowdIn Configuration <https://support.crowdin.com/configuration-file/#cli-2>`__.
 
 
 

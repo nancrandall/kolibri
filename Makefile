@@ -149,26 +149,33 @@ dist: writeversion staticdeps staticdeps-cext buildconfig assets compilemessages
 pex: writeversion
 	ls dist/*.whl | while read whlfile; do pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed -s 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
 
-i18n-messages-docs:
+translation-docs-makemessages:
 	make -C docs/ gettext
 	cd docs && sphinx-intl update -p _build/locale -l en
 
-makemessages: assets i18n-messages-docs
+translation-docs-build:
+	make -C docs/ -e SPHINXOPTS="-D language='${lang}'" html
+
+translation-django-makemessages: assets
 	python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --ignore 'docs/conf.py'
 
-compilemessages:
+translation-django-compilemessages:
 	python -m kolibri manage compilemessages
 
-syncmessages: ensurecrowdinclient uploadmessages downloadmessages
+translation-crowdin-install:
+	@`[ -f build_tools/crowdin-cli.jar ]` && echo "Found crowdin-cli.jar" || wget -O build_tools/crowdin-cli.jar https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar
 
-ensurecrowdinclient:
-	@`[ -f crowdin-cli.jar ]` && echo "Found crowdin-cli.jar" || wget https://storage.googleapis.com/le-downloads/crowdin-cli/crowdin-cli.jar
+translation-crowdin-upload-kolibri:
+	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml upload sources -b ${crowdin-branch}
 
-uploadmessages:
-	java -jar crowdin-cli.jar upload sources -b `git symbolic-ref HEAD | xargs basename`
+translation-crowdin-download-kolibri:
+	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin.yaml download -b ${crowdin-branch}
 
-downloadmessages:
-	java -jar crowdin-cli.jar download -b `git symbolic-ref HEAD | xargs basename`
+translation-crowdin-upload-kolibri-docs:
+	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin_docs.yaml upload sources -b ${crowdin-branch}
+
+translation-crowdin-download-kolibri-docs:
+	java -jar build_tools/crowdin-cli.jar -c build_tools/crowdin_docs.yaml download -b ${crowdin-branch}
 
 dockerenvclean:
 	docker container prune -f
